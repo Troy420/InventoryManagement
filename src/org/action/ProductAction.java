@@ -1,6 +1,7 @@
 package org.action;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -18,98 +19,127 @@ import com.opensymphony.xwork2.*;
 
 public class ProductAction extends ActionSupport{
 	
-	//private HttpServletRequest request;
-	
 	ProductDao productDao;
 	private File photoFile;
-	private Product product;
-
-	public Product getProduct(Product product) {
-		return product;
+	private Product productBean;	
+	private Product productOutBean;	
+	
+	private Product productInBean;
+	
+	public File getPhotoFile() {
+		return photoFile;
 	}
-
-	public void setProduct(Product product) {
-		this.product = product;
+	public void setPhotoFile(File photoFile) {
+		this.photoFile = photoFile;
 	}
 	
-//	public String execute()throws Exception{
-//		ProductDao courseDao=new ProductDaoImp();
-//		List prod_list=courseDao.getAll();			
-//		Map request=(Map)ActionContext.getContext().get("request");
-//		request.put("prod_list", prod_list);			
-//		return SUCCESS;
-//	}
+	public Product getProductOutBean() {
+		return productOutBean;
+	}
+	public void setProductOutBean(Product productOutBean) {
+		this.productOutBean = productOutBean;
+	}
+	public Product getProductBean() {
+		return productBean;
+	}
+
+	public void setProductBean(Product productBean) {
+		this.productBean = productBean;
+	}
+	
+	
+	public Product getProductInBean() {
+		return productInBean;
+	}
+	public void setProductInBean(Product productInBean) {
+		this.productInBean = productInBean;
+	}
+	public String execute()throws Exception{
+		ProductDao productDao2=new ProductDaoImp();
+		List prod_list=productDao2.getAll();			
+		Map request=(Map)ActionContext.getContext().get("request");
+		request.put("prod_list", prod_list);			
+		return SUCCESS;
+	}
+	
+	public String getAllProduct() throws Exception{
+		ProductDao productDao2=new ProductDaoImp();
+		List prod_list=productDao2.getAll();
+		if(prod_list!=null){
+			Map request=(Map)ActionContext.getContext().get("request");
+			request.put("prod_list", prod_list);
+			return SUCCESS;
+		}
+		else {
+			return ERROR;
+		}
+	}
+	
+	public String getAllProductSession() {
+		Map session=(Map)ActionContext.getContext().getSession();
+		ProductDao productDao2=new ProductDaoImp();
+		List products=productDao2.getAllForHomePage();
+		session.put("products", products);
+		return SUCCESS;
+	}
+	
 	public String getImage() throws Exception{
 		productDao=new ProductDaoImp();
-		byte[] photo=productDao.getOneProduct(product.getId()).getProd_img();	
-		HttpServletResponse response=ServletActionContext.getResponse();
-		response.setContentType("image/jpeg");
-		ServletOutputStream os=response.getOutputStream();			
-		if(photo!=null&&photo.length>0){
-			for(int i=0;i<photo.length;i++){
-				os.write(photo[i]);
+		if(productBean.getId()!=null) {
+			byte[] photo=productDao.getOneProduct(productBean.getId()).getProd_img();	
+			HttpServletResponse response=ServletActionContext.getResponse();
+			response.setContentType("image/jpeg");
+			ServletOutputStream os=response.getOutputStream();			
+			if(photo!=null&&photo.length>0){
+				for(int i=0;i<photo.length;i++){
+					os.write(photo[i]);
+				}
 			}
 		}
+		
 		return NONE;									
 	}
 	
-	public String addProduct() throws Exception{
-		boolean valid = false;
-		SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
-		Session Hsession=sessionFactory.openSession();		
-		Transaction ts = Hsession.beginTransaction();
-		productDao = new ProductDaoImp();
-		Product prod = new Product();
-		try{
-			//prod.setProd_id(product.getProd_id());
-			prod.setProd_name(product.getProd_name());
-			prod.setCategory(product.getCategory());
-			//prod.setCategory("Furniture");
-			//prod.setImage("text");
-			prod.setStock(product.getStock());
-			prod.setDescription(product.getDescription());
-			
-			Hsession.save(prod);
-			ts.commit();
-			valid = true;
-		}catch(Exception e){
-			e.printStackTrace();
-							
-		}
-		if(valid){
+	public String checkQuantity() throws Exception {
+		ProductDao productDao=new ProductDaoImp();
+		ProductDao productDao2=new ProductDaoImp();
+		List prod_list=productDao2.getAll();
+		Product prod = productDao.getOneProduct(productOutBean.getProd_id());
+		if(prod != null) {
+			Map request=(Map)ActionContext.getContext().get("request");
+			request.put("prod_list", prod_list);	
+			request.put("currentProd", prod);
 			return SUCCESS;
 		}
-		else{
+		else {
 			return ERROR;
 		}
-		
-		
-		
 	}
-//	public String updateStudent() throws Exception{
-//		studentDao=new StudentDaoImp();
-//		MajorDao majorDao=new MajorDaoImp();
-//		Student stu=new Student();					
-//		stu.setSid(student.getSid());					
-//		stu.setName(student.getName());					
-//		stu.setGender(student.getGender());					
-//		stu.setBirthday(student.getBirthday());				
-//		stu.setCredit(student.getCredit());					
-//		stu.setRemarks(student.getRemarks());					
-//	
-//		if(this.getPhotoFile()!=null){
-//			FileInputStream fis=new FileInputStream(this.getPhotoFile());	
-//			byte[] buffer=new byte[fis.available()];	
-//			fis.read(buffer);					
-//			stu.setPhoto(buffer);
-//		}
-//		Major mj=majorDao.getOneMajor(major.getMid());
-//		
-//		stu.setMajor(mj);
-//		
-//		Set list=studentDao.getOneStudent(student.getSid()).getCourse_set();
-//		stu.setCourse_set(list);						
-//		studentDao.update(stu);				
-//		return SUCCESS;
-//	}
+	
+	public String checkProdId() throws Exception {
+		ProductDao productDao=new ProductDaoImp();
+		ProductDao productDao2=new ProductDaoImp();
+		List prod_list=productDao2.getAll();
+		Product prod = productDao.getOneProduct(productInBean.getProd_id());
+		Map request=(Map)ActionContext.getContext().get("request");
+		if(prod != null) {
+			request.put("prod_list", prod_list);	
+			request.put("currentProd", prod);
+			
+			CategoryDao categoryDao=new CategoryDaoImp();				
+			List categories=categoryDao.getAll();
+			request.put("categories", categories);
+			return SUCCESS;
+		}
+		else {
+			Product prod2 = new Product();
+			prod2.setProd_id(productInBean.getProd_id());
+			request.put("originalProdId", prod2);
+			CategoryDao categoryDao=new CategoryDaoImp();				
+			List categories=categoryDao.getAll();
+			request.put("categories", categories);
+			return SUCCESS;
+		}
+	}
+	
 }

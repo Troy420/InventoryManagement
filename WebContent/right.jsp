@@ -1,53 +1,59 @@
-<%@ page language="java" pageEncoding="UTF-8" import="org.model.Login"%>
+<%@ page language="java" pageEncoding="UTF-8" import="org.model.Login, org.model.Product"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
 <html>
 <head>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-	
-	<style>
-		body {
-			display: flex;
-			flex-wrap: wrap;
-		}
-		
-		.card{
-			margin: 20px;
-		}
-	</style>
-	
+	<Title>Inventory Management System</Title>
+	<link rel="stylesheet" href="dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="CSS/right.css">
 </head>
 <body>
-<p>Hi, 
+
+<%-- <p>Hi, 
 <%  Login user = (Login) session.getAttribute("user");
 	String usr = user.getUsername();
+	
+	//Product products = (Product) session.getAttribute("products");
 %> 
 
 <%=usr%>
+
 <p>
-<div class="card" style="width: 18rem;">
-  <img src="https://source.unsplash.com/600x300" class="card-img-top" alt="...">
+<a href="addCategory.jsp" class="btn btn-primary">Add Category</a> --%>
+
+<s:iterator id="product" value="#session.products" var="product">
+<div class="card">
+	
+	<!-- getting the image url from the database -->
+	<div id="image-css" style="background-image: url('getImage.action?productBean.id=<s:property value="#product.id"/>');" >
+		
+	</div>
+	<!-- END of getting the image url from the database -->
+	
+	<%-- <img src="getImage.action?productBean.id=<s:property value="#product.id"/>" class="card-img-top editImage"> --%>
   <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
+    <h5 class="card-title">
+    	<s:if test="%{#product.prod_name.length()<15}">
+    		<s:property value="#product.prod_name" />
+    	</s:if>
+    	<s:else>
+			<p><s:property value="#product.prod_name.substring(0,15)" />...</p>
+    	</s:else>
+    <%-- <s:property value="#product.prod_name" /> --%>
+    
+    </h5>
+    <%-- <p class="card-text"><s:property value="#product.description" /></p> --%>
+    	<s:if test="%{#product.description.length()<50}">
+    		<p class="card-text"><s:property value="#product.description" /></p>
+    	</s:if>
+    	<s:else>
+    		<p class="card-text"><s:property value="#product.description.substring(0,50)" />...</p>
+    	</s:else>
+    <a href="ProductEdit.action?prodIn.prod_id=<s:property value="#product.prod_id" />" class="btn btn-primary editBtn">Edit</a>
   </div>
 </div>
-<div class="card" style="width: 18rem;">
-  <img src="https://source.unsplash.com/600x300" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
-  </div>
-</div>
-<div class="card" style="width: 18rem;">
-  <img src="https://source.unsplash.com/600x300" class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
-  </div>
-</div>
+</s:iterator>
+
+<!-- 
 <div class="card" style="width: 18rem;">
   <img src="https://source.unsplash.com/600x300" class="card-img-top" alt="...">
   <div class="card-body">
@@ -57,12 +63,11 @@
   </div>
 </div>
 
+ -->
 
 
-
-	<!-- SCRIPTS -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+	<!-- SCRIPTS HERE -->
+<script src="dist/jquery.min.js"></script>
+<script src="dist/js/bootstrap.min.js"></script>
 </body>
 </html>
